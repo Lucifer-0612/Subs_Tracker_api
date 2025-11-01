@@ -50,5 +50,30 @@ export const signup = async (req, res , next) =>
             next(error);
         }
     }
-export const signin = async(req , res , next)=> {}
+export const signin = async(req , res , next)=> {
+    try {
+       //sign in
+    const {email , password} = req.body;
+    const existingUser = await User.findOne({email});
+    if(!existingUser)
+    {
+        const error = new Error("Invalid credentials");
+        error.statusCode = 401;
+        throw error;   
+    }
+    const isPasswordCorrect = await bcrypt.compare(password , existingUser.password);  
+    if(!isPasswordCorrect)
+    {
+        const error = new Error("Invalid credentials");
+        error.statusCode = 401;
+        throw error;   
+    }
+    const token = jwt.sign({userId : existingUser._id}, JWT_SECRET_KEY, {expiresIn : JWT_EXPIRES_IN});
+    res.status(200).json({userId : existingUser._id , email : existingUser.email , token});
+
+    } catch (error) {
+        //handle error
+        next(error);
+    }
+}
 export const signout = async(req , res , next)=> {}
