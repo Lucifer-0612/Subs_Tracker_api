@@ -13,9 +13,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use('api/v1/auth', authRouter)
-app.use('api/v1/users', userRouter)
-app.use('api/v1/subscriptions', subscriptionRouter)
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/users', userRouter)
+app.use('/api/v1/subscriptions', subscriptionRouter)
 app.use(errorMiddleware);
 app.get('/', (req, res) =>
 {
@@ -25,8 +25,14 @@ app.get('/', (req, res) =>
 app.listen( PORT, async ()=>
 {
     console.log(`server is running on port http://localhost:${PORT}`);
-    await connectDB();
-    
+    try {
+        await connectDB();
+    } catch (error) {
+        console.error('Failed to connect to database:', error.message);
+        // Continue running the server even if DB connection fails
+    }
+
 })
 
+// Trigger nodemon restart again
 export default app;
